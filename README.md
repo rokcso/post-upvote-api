@@ -1,96 +1,105 @@
 # post-upvote-api
 
-本项目是 [hugo-bearblog-neo](https://github.com/rokcso/hugo-bearblog-neo) 中 Upvote 功能的后端服务。基于 Cloudflare Workers + KV，可以非常方便地自部署。
+[English](./README.md) | [简体中文](./doc/README_zh.md)
 
-Upvote 功能：支持用户对单篇文章进行 Upvote，统计每篇文章的 Upvote 数，判断用户对单篇文章的 Upvote 状态。
+This project serves as the backend service for the Upvote feature in [hugo-bearblog-neo](https://github.com/rokcso/hugo-bearblog-neo). Built on Cloudflare Workers + KV, it allows for easy self-deployment.
+
+> Upvote feature: Allows users to upvote individual articles, counts the number of upvotes for each article, and determines the upvote status of a user for a single article.
 
 **TOC**
 
 - [post-upvote-api](#post-upvote-api)
-  - [部署指南](#部署指南)
-    - [部署 Workers](#部署-workers)
-    - [创建 KV namespace](#创建-kv-namespace)
-    - [为 Workers 绑定 KV namespace](#为-workers-绑定-kv-namespace)
-    - [测试](#测试)
-  - [如何在 hugo-bearblog-neo 中启用 Upvote 功能？](#如何在-hugo-bearblog-neo-中启用-upvote-功能)
-  - [鸣谢](#鸣谢)
+  - [Deployment Guide](#deployment-guide)
+    - [Deploy Worker](#deploy-worker)
+    - [Create KV namespace](#create-kv-namespace)
+    - [Bind KV namespace to Worker](#bind-kv-namespace-to-worker)
+    - [Testing](#testing)
+    - [Tips](#tips)
+  - [How to enable the Upvote feature in hugo-bearblog-neo?](#how-to-enable-the-upvote-feature-in-hugo-bearblog-neo)
+  - [Acknowledgments](#acknowledgments)
 
-## 部署指南
+## Deployment Guide
 
-### 部署 Workers
+### Deploy Worker
 
-注册/登录 Cloudflare 后台，前往 Workers 模块后点击 Create（下图 2 处）。
+Register/Log in to the Cloudflare dashboard, navigate to the Workers module, and click on Create (as shown in the figure at point 2).
 
-![create-worker-1](/assets/readme/create-worker-1.png)
+![create-worker-1](./doc/images/create-worker-1.png)
 
-点击 Create Worker（下图 3 处）。
+Click Create Worker (point 3).
 
-![create-worker-2](/assets/readme/create-worker-2.png)
+![create-worker-2](./doc/images/create-worker-2.png)
 
-随便输入一个名称（比如 post-upvote）后点击 Deploy（下图 5 处）。
+Enter any name (e.g., post-upvote) and then click Deploy (point 5).
 
-![create-worker-3](/assets/readme/create-worker-3.png)
+![create-worker-3](./doc/images/create-worker-3.png)
 
-然后点击 Edit code（下图 6 处）。
+Then click on Edit code (point 6).
 
-![edit-worker-code-1](/assets/readme/edit-worker-code-1.png)
+![edit-worker-code-1](./doc/images/edit-worker-code-1.png)
 
-删除代码编辑器（下图 7 处）中原有的代码，将本项目 [worker.js](https://github.com/rokcso/post-upvote-api/blob/main/worker.js) 中的代码完全复制粘贴到代码编辑器中，点击 Deploy（下图 8 处）。
+Delete the existing code in the code editor (point 7), then copy and paste the code from the [worker.js](https://github.com/rokcso/post-upvote-api/blob/main/worker.js) file of this project into the code editor, and click Deploy (point 8).
 
-![edit-worker-code-2](/assets/readme/edit-worker-code-2.png)
+![edit-worker-code-2](./doc/images/edit-worker-code-2.png)
 
-### 创建 KV namespace
+### Create KV namespace
 
-注册/登录 Cloudflare 后台，前往 KV 模块后点击 Create（下图 10 处）。
+Register/Log in to the Cloudflare dashboard, navigate to the KV module, and click on Create (point 10).
 
-![create-kv-1](/assets/readme/create-kv-1.png)
+![create-kv-1](./doc/images/create-kv-1.png)
 
-随便输入一个名称（比如 upvote-count）后点击 Add（下图 12 处）。
+Enter any name (e.g., upvote-count) and then click Add (point 12).
 
-![create-kv-2](/assets/readme/create-kv-2.png)
+![create-kv-2](./doc/images/create-kv-2.png)
 
-用相同的步骤再创建一个 KV namespace，依然可以随便命名（比如 upvote-record）。
+Create another KV namespace using the same steps, and you can still name it whatever you like (e.g., upvote-record).
 
-### 为 Workers 绑定 KV namespace
+### Bind KV namespace to Worker
 
-注册/登录 Cloudflare 后台，前往 Workers 模块后点击进入刚刚创建的 Worker（如本案例中下图 14 处的 post-upvote）。
+Register/Log in to the Cloudflare dashboard, navigate to the Workers module, and then click to enter the Worker you just created (As in the case of post-upvote in this example, point 14).
 
-![binding-kv-1](/assets/readme/binding-kv-1.png)
+![binding-kv-1](./doc/images/binding-kv-1.png)
 
-前往该 Worker 中的 Settings -> Bindings，点击 Add（下图 17 处）。
+Go to Settings -> Bindings in the Worker, and click Add (point 17).
 
-![binding-kv-2](/assets/readme/binding-kv-2.png)
+![binding-kv-2](./doc/images/binding-kv-2.png)
 
-选择 KV namespace 后输入 Variable name 为 `UPVOTE_COUNT`，然后选择一个刚刚创建的 KV namespace（比如 upvote-count），随后点击 Save（下图 20 处）。
+After selecting the KV namespace, enter the Variable name as `UPVOTE_COUNT`, then choose a newly created KV namespace (e.g., upvote-count), and click Save (point 20).
 
-![binding-kv-3](/assets/readme/binding-kv-3.png)
+![binding-kv-3](./doc/images/binding-kv-3.png)
 
-用相同的步骤再创建一个 Variable name 为 `UPVOTE_RECORD`，选择刚刚创建的另一个 KV namespace（比如 upvote-record），随后点击 Save。
+Create another Variable named `UPVOTE_RECORD` using the same steps, and select the another newly created KV namespace (e.g., upvote-record), and then click Save.
 
-正确的配置应如下图 21 处，Variable name（即 `UPVOTE_COUNT` 和 `UPVOTE_RECORD`）一定不能错。
+The correct configuration should be as shown in the figure at point 21, where the Variable names (namely `UPVOTE_COUNT` and `UPVOTE_RECORD`) must not be incorrect.
 
-![binding-kv-4](/assets/readme/binding-kv-4.png)
+![binding-kv-4](./doc/images/binding-kv-4.png)
 
-### 测试
+### Testing
 
-注册/登录 Cloudflare 后台，前往 Workers 模块后点击进入刚刚创建的 Worker，进入该 Worker 中的 Settings -> Domains & Routes，此处默认启用的 workers.dev 域名后对应的 Value（下图 22 处）即为该 Worker 的域名。
+Register/Log in to the Cloudflare dashboard, navigate to the Workers module, and click on the Worker you just created. Go to Settings -> Domains & Routes within that Worker. The Value corresponding to the default enabled workers.dev domain (point 22) is the domain for this Worker.
 
-或者直接点击下图 23 处访问该 Worker 的域名。
+Or simply click as shown in the figure at point 23 to access the Worker's domain.
 
-![test-api-1](/assets/readme/test-api-1.png)
+![test-api-1](./doc/images/test-api-1.png)
 
-通过浏览器访问该 Worker 的域名后如果能看到如下图提示即为部署成功。
+If you can see the prompt as shown in the figure below after accessing the Worker's domain through a browser, it means the deployment was successful.
 
-![test-api-2](/assets/readme/test-api-2.png)
+![test-api-2](./doc/images/test-api-2.png)
 
-## 如何在 hugo-bearblog-neo 中启用 Upvote 功能？
+### Tips
 
-详见 hugo-bearblog-neo 提供的 [使用指南](https://github.com/rokcso/hugo-bearblog-neo/)。
+Access to the workers.dev domain of Cloudflare Workers may not be smooth within China, and this issue can be resolved by adding a custom domain for the Worker.
 
-## 鸣谢
+![custom-domain-1](./doc/images/custom-domain-1.png)
 
-感谢 [bearblog](https://github.com/HermanMartinus/bearblog) 创造了 Bear Blog，感谢 [hugo-bearblog](https://github.com/janraasch/hugo-bearblog) 将 Bear Blog 带到了 [Hugo](https://gohugo.io/)。
+## How to enable the Upvote feature in hugo-bearblog-neo?
 
-感谢 [Emaction](https://github.com/emaction/emaction.backend)、[hugo-cf-worker](https://github.com/bigfa/hugo-cf-worker) 启发了本项目的实现思路。
+For details, refer to the [user guide](https://github.com/rokcso/hugo-bearblog-neo/) provided by hugo-bearblog-neo.
 
-感谢 [Cloudflare](https://www.cloudflare.com/) 提供了本项目得以实现的所有功能和资源。
+## Acknowledgments
+
+Thanks to [bearblog](https://github.com/HermanMartinus/bearblog) for creating Bear Blog, and thanks to [hugo-bearblog](https://github.com/janraasch/hugo-bearblog) for bringing Bear Blog to [Hugo](https://gohugo.io/).
+
+Thanks to [Emaction](https://github.com/emaction/emaction.backend) and [hugo-cf-worker](https://github.com/bigfa/hugo-cf-worker) for inspiring the implementation ideas of this project.
+
+Thanks to [Cloudflare](https://www.cloudflare.com/) for providing all the features and resources that made this project possible.
