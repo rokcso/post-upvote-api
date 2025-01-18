@@ -10,19 +10,33 @@ Upvote 功能：支持用户对单篇文章进行 Upvote，统计每篇文章的
 
 注册/登录 Cloudflare 后台，前往 Workers 模块后点击 Create（下图 2 处）。
 
+![create-worker-1](/assets/readme/create-worker-1.png)
+
 点击 Create Worker（下图 3 处）。
+
+![create-worker-2](/assets/readme/create-worker-2.png)
 
 随便输入一个名称（比如 post-upvote）后点击 Deploy（下图 5 处）。
 
+![create-worker-3](/assets/readme/create-worker-3.png)
+
 然后点击 Edit code（下图 6 处）。
 
-删除代码编辑器（下图 7 处）中原有的代码，将本项目 [worker.js]() 中的代码完全复制粘贴到代码编辑器中，点击 Deploy（下图 8 处）。
+![edit-worker-code-1](/assets/readme/edit-worker-code-1.png)
+
+删除代码编辑器（下图 7 处）中原有的代码，将本项目 [worker.js](https://github.com/rokcso/post-upvote-api/blob/main/worker.js) 中的代码完全复制粘贴到代码编辑器中，点击 Deploy（下图 8 处）。
+
+![edit-worker-code-2](/assets/readme/edit-worker-code-2.png)
 
 ### 创建 KV namespace
 
 注册/登录 Cloudflare 后台，前往 KV 模块后点击 Create（下图 10 处）。
 
+![create-kv-1](/assets/readme/create-kv-1.png)
+
 随便输入一个名称（比如 upvote-count）后点击 Add（下图 12 处）。
+
+![create-kv-2](/assets/readme/create-kv-2.png)
 
 用相同的步骤再创建一个 KV namespace，依然可以随便命名（比如 upvote-record）。
 
@@ -30,11 +44,21 @@ Upvote 功能：支持用户对单篇文章进行 Upvote，统计每篇文章的
 
 注册/登录 Cloudflare 后台，前往 Workers 模块后点击进入刚刚创建的 Worker（如本案例中下图 14 处的 post-upvote）。
 
+![binding-kv-1](/assets/readme/binding-kv-1.png)
+
 前往该 Worker 中的 Settings -> Bindings，点击 Add（下图 17 处）。
+
+![binding-kv-2](/assets/readme/binding-kv-2.png)
 
 选择 KV namespace 后输入 Variable name 为 `UPVOTE_COUNT`，然后选择一个刚刚创建的 KV namespace（比如 upvote-count），随后点击 Save（下图 20 处）。
 
+![binding-kv-3](/assets/readme/binding-kv-3.png)
+
 用相同的步骤再创建一个 Variable name 为 `UPVOTE_RECORD`，选择刚刚创建的另一个 KV namespace（比如 upvote-record），随后点击 Save。
+
+正确的配置应如下图 21 处，Variable name（即 `UPVOTE_COUNT` 和 `UPVOTE_RECORD`）一定不能错。
+
+![binding-kv-4](/assets/readme/binding-kv-4.png)
 
 ### 测试
 
