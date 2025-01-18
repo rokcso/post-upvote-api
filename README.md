@@ -6,12 +6,14 @@ Upvote 功能：支持用户对单篇文章进行 Upvote，统计每篇文章的
 
 **TOC**
 
-- [部署指南](#部署指南)
-  - [部署 Workers](#部署-workers)
-  - [创建 KV namespace](#创建-kv-namespace)
-  - [为 Workers 绑定 KV namespace](#为-workers-绑定-kv-namespace)
-  - [测试](#测试)
-- [在 hugo-bearblog-neo 中启用 Upvote 功能](#在-hugo-bearblog-neo-中启用-upvote-功能)
+- [post-upvote-api](#post-upvote-api)
+  - [部署指南](#部署指南)
+    - [部署 Workers](#部署-workers)
+    - [创建 KV namespace](#创建-kv-namespace)
+    - [为 Workers 绑定 KV namespace](#为-workers-绑定-kv-namespace)
+    - [测试](#测试)
+  - [如何在 hugo-bearblog-neo 中启用 Upvote 功能？](#如何在-hugo-bearblog-neo-中启用-upvote-功能)
+  - [鸣谢](#鸣谢)
 
 ## 部署指南
 
@@ -71,8 +73,24 @@ Upvote 功能：支持用户对单篇文章进行 Upvote，统计每篇文章的
 
 ### 测试
 
-## 在 hugo-bearblog-neo 中启用 Upvote 功能
+注册/登录 Cloudflare 后台，前往 Workers 模块后点击进入刚刚创建的 Worker，进入该 Worker 中的 Settings -> Domains & Routes，此处默认启用的 workers.dev 域名后对应的 Value（下图 22 处）即为该 Worker 的域名。
 
+或者直接点击下图 23 处访问该 Worker 的域名。
 
+![test-api-1](/assets/readme/test-api-1.png)
 
+通过浏览器访问该 Worker 的域名后如果能看到如下图提示即为部署成功。
 
+![test-api-2](/assets/readme/test-api-2.png)
+
+## 如何在 hugo-bearblog-neo 中启用 Upvote 功能？
+
+详见 hugo-bearblog-neo 提供的 [使用指南](https://github.com/rokcso/hugo-bearblog-neo/)。
+
+## 鸣谢
+
+感谢 [bearblog](https://github.com/HermanMartinus/bearblog) 创造了 Bear Blog，感谢 [hugo-bearblog](https://github.com/janraasch/hugo-bearblog) 将 Bear Blog 带到了 [Hugo](https://gohugo.io/)。
+
+感谢 [Emaction](https://github.com/emaction/emaction.backend)、[hugo-cf-worker](https://github.com/bigfa/hugo-cf-worker) 启发了本项目的实现思路。
+
+感谢 [Cloudflare](https://www.cloudflare.com/) 提供了本项目得以实现的所有功能和资源。
