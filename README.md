@@ -4,6 +4,15 @@
 
 Upvote 功能：支持用户对单篇文章进行 Upvote，统计每篇文章的 Upvote 数，判断用户对单篇文章的 Upvote 状态。
 
+**TOC**
+
+- [部署指南](#部署指南)
+  - [部署 Workers](#部署-workers)
+  - [创建 KV namespace](#创建-kv-namespace)
+  - [为 Workers 绑定 KV namespace](#为-workers-绑定-kv-namespace)
+  - [测试](#测试)
+- [在 hugo-bearblog-neo 中启用 Upvote 功能](#在-hugo-bearblog-neo-中启用-upvote-功能)
+
 ## 部署指南
 
 ### 部署 Workers
