@@ -128,14 +128,6 @@ async function handleRequest(request) {
         // 拼接 upvoteRecordKey
         const upvoteRecordKey = `upvote:${postId}:${ip}`;
 
-        // 检查用户是否已经投过票，从 UPVOTE_RECORD KV 获取对应的 value
-        const existingUpvoteValue = Number(await UPVOTE_RECORD.get(upvoteRecordKey));
-        if (existingUpvoteValue === 1) {
-            return new Response(JSON.stringify({ "code": 1, "msg": 'You have already voted.' }), {
-                status: 400, headers
-            });
-        }
-
         // 如果用户还没有投过票，则执行后续逻辑
         // 将 upvoteRecordValue 存储到 UPVOTE_RECORD KV
         await UPVOTE_RECORD.put(upvoteRecordKey, upvoteRecordValue);
@@ -145,6 +137,13 @@ async function handleRequest(request) {
         const upvoteCountValue = Number(await UPVOTE_COUNT.get(upvoteCountKey));
         // 如果本次行为为投票，则 upvoteCountValue + 1，否则 upvoteCountValue - 1
         if (upvoteRecordValue === 1) {
+            // 检查用户是否已经投过票，从 UPVOTE_RECORD KV 获取对应的 value
+            const existingUpvoteValue = Number(await UPVOTE_RECORD.get(upvoteRecordKey));
+            if (existingUpvoteValue === 1) {
+                return new Response(JSON.stringify({ "code": 1, "msg": 'You have already voted.' }), {
+                    status: 400, headers
+                });
+            }
             await UPVOTE_COUNT.put(upvoteCountKey, (upvoteCountValue || 0) + 1);
         } else if (upvoteRecordValue === 0) {
             await UPVOTE_COUNT.put(upvoteCountKey, (upvoteCountValue || 0) - 1);
