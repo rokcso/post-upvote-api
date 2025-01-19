@@ -1,4 +1,4 @@
-# post-upvote-api
+# Post Upvote API
 
 [English](./README.md) | [简体中文](./doc/README_zh.md)
 
@@ -8,15 +8,14 @@ This project serves as the backend service for the Upvote feature in [hugo-bearb
 
 **TOC**
 
-- [post-upvote-api](#post-upvote-api)
-  - [Deployment Guide](#deployment-guide)
-    - [Deploy Worker](#deploy-worker)
-    - [Create KV namespace](#create-kv-namespace)
-    - [Bind KV namespace to Worker](#bind-kv-namespace-to-worker)
-    - [Testing](#testing)
-    - [Tips](#tips)
-  - [How to enable the Upvote feature in hugo-bearblog-neo?](#how-to-enable-the-upvote-feature-in-hugo-bearblog-neo)
-  - [Acknowledgments](#acknowledgments)
+- [Deployment Guide](#deployment-guide)
+  - [Deploy Worker](#deploy-worker)
+  - [Create KV namespace](#create-kv-namespace)
+  - [Bind KV namespace to Worker](#bind-kv-namespace-to-worker)
+  - [Testing](#testing)
+  - [Tips](#tips)
+- [How to enable the Upvote feature in hugo-bearblog-neo?](#how-to-enable-the-upvote-feature-in-hugo-bearblog-neo)
+- [Acknowledgments](#acknowledgments)
 
 ## Deployment Guide
 

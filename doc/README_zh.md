@@ -1,4 +1,4 @@
-# post-upvote-api
+# Post Upvote API
 
 [English](../README.md) | [简体中文](./README_zh.md)
 
@@ -8,15 +8,14 @@
 
 **TOC**
 
-- [post-upvote-api](#post-upvote-api)
-  - [部署指南](#部署指南)
-    - [部署 Worker](#部署-worker)
-    - [创建 KV namespace](#创建-kv-namespace)
-    - [为 Worker 绑定 KV namespace](#为-worker-绑定-kv-namespace)
-    - [测试](#测试)
-    - [注意事项](#注意事项)
-  - [如何在 hugo-bearblog-neo 中启用 Upvote 功能？](#如何在-hugo-bearblog-neo-中启用-upvote-功能)
-  - [鸣谢](#鸣谢)
+- [部署指南](#部署指南)
+  - [部署 Worker](#部署-worker)
+  - [创建 KV namespace](#创建-kv-namespace)
+  - [为 Worker 绑定 KV namespace](#为-worker-绑定-kv-namespace)
+  - [测试](#测试)
+  - [注意事项](#注意事项)
+- [如何在 hugo-bearblog-neo 中启用 Upvote 功能？](#如何在-hugo-bearblog-neo-中启用-upvote-功能)
+- [鸣谢](#鸣谢)
 
 ## 部署指南
 
