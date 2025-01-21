@@ -3,18 +3,23 @@ addEventListener('fetch', event => {
     event.respondWith(handleRequest(event.request))
 })
 
-async function handleRequest(request) {
-    // 公共响应头
-    const headers = {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*', // 允许所有域名跨域访问
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', // 允许的 HTTP 方法
-        'Access-Control-Allow-Headers': 'Content-Type', // 允许的请求头
-    };
+// 统一的响应处理
+function createResponse(data, status = 200) {
+    return new Response(JSON.stringify(data), {
+        status,
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type',
+        }
+    });
+}
 
+async function handleRequest(request) {
     // PTIONS 预检请求
     if (request.method === 'OPTIONS') {
-        return new Response(null, { headers });
+        return createResponse(null);
     }
 
     const url = new URL(request.url);
@@ -24,8 +29,9 @@ async function handleRequest(request) {
 
     // 首页路由
     if (pathname === '/') {
-        return new Response(JSON.stringify({ "code": 0, "msg": "Visit https://rokcso.com/p/post-upvote-api/ to see more." }), { 
-            status: 200, headers
+        return createResponse({
+            code: 0,
+            msg: "Visit https://rokcso.com/p/post-upvote-api/ to see more."
         });
     }
 
@@ -33,63 +39,66 @@ async function handleRequest(request) {
     if (pathname === '/count') {
         // 只支持 GET 请求
         if (request.method !== 'GET') {
-            return new Response(JSON.stringify({ "code": 1, "msg": '/count only supports GET method.' }), {
-                status: 405, headers
-            });
+            return createResponse({
+                code: 1,
+                msg: '/count only supports GET method.'
+            }, 405);
         }
 
         // 获取 post 参数
         const postId = url.searchParams.get('post');
-
         // 如果 post 参数无值
         if (!postId) {
-            return new Response(JSON.stringify({ "code": 1, "msg": 'Please input postId, e.g., /count?post=xxx' }), {
-                status: 400, headers
-            });
+            return createResponse({
+                code: 1,
+                msg: "Please input postId, e.g., /count?post=xxx"
+            }, 400);
         }
 
         // 如果 post 参数有值，则构造待查询的 upvoteCountKey 并从 UPVOTE_COUNT KV 获取对应的 upvoteCountValue
-        const upvoteCountKey = `count:${postId}`;
-        const upvoteCountValue = Number(await UPVOTE_COUNT.get(upvoteCountKey));
-
-        // 如果没有从 UPVOTE_COUNT KV 获取到 upvoteCountKey 对应的 upvoteCountValue
-        if (upvoteCountValue === null) {
-            return new Response(JSON.stringify({ "code": 1, "msg": `No post count data found for key "${upvoteCountKey}".` }), {
-                status: 404, headers
-            });
-        }
-
         // 获取请求方 IP 地址
         const ip = request.headers.get('CF-Connecting-IP');
+        const upvoteCountKey = `count:${postId}`;
+        const upvoteRecordKey = `upvote:${postId}:${ip}`
 
-        // 构造待查询的 upvoteRecordKey 并从 UPVOTE_RECORD KV 获取对应的 upvoteRecordValue
-        const upvoteRecordKey = `upvote:${postId}:${ip}`;
-        const upvoteRecordValue = Number(await UPVOTE_RECORD.get(upvoteRecordKey));
-        // 如果没有从 UPVOTE_RECORD KV 获取到 upvoteRecordKey 对应的 upvoteRecordValue
-        // 暂不做处理，在最终结果中返回
+        try {
+            const [upvoteCountValue, upvoteRecordValue] = await Promise.all([
+                UPVOTE_COUNT.get(upvoteCountKey),
+                UPVOTE_RECORD.get(upvoteRecordKey)
+            ]);
 
-        // 如果从 UPVOTE_COUNT KV 获取到 upvoteCountKey 对应的 upvoteCountValue
-        return new Response(JSON.stringify({
-            "code": 0,
-            "msg": "success",
-            "data": {
-                "postId": postId,
-                "count": upvoteCountValue,
-                // 当 upvoteRecordValue !== 1 时（通常为 null 或 0）表示用户还没有投过票，返回 false
-                "hasUpvoted": upvoteRecordValue === 1
+            if (upvoteCountValue === null) {
+                return createResponse({
+                    code: 1,
+                    msg: `No post count data found for key "${upvoteCountKey}".`
+                }, 404);
             }
-        }), {
-            status: 200, headers
-        });
+
+            return createResponse({
+                code: 0,
+                msg: "success",
+                data: {
+                    post: postId,
+                    count: Number(upvoteCountValue),
+                    hasUpvoted: upvoteRecordValue === 1
+                }
+            });
+        } catch (e) {
+            return createResponse({
+                code: 1,
+                msg: `Failed to fetch data from KV store: ${e.message}`
+            }, 500);
+        }
     }
 
     // /upvote 路由
     if (pathname === '/upvote') {
         // 只支持 POST 请求
         if (request.method !== 'POST') {
-            return new Response(JSON.stringify({ "code": 1, "msg": '/upvote only supports POST method.' }), {
-                status: 405, headers
-            });
+            return createResponse({
+                code: 1,
+                msg: '/upvote only supports POST method.'
+            }, 405);
         }
 
         // 解析请求体 body
@@ -97,67 +106,71 @@ async function handleRequest(request) {
         try {
             body = await request.json();
         } catch (e) {
-            return new Response(JSON.stringify({ "code": 1, "msg": `Invalid JSON body, details: ${e.message}` }), {
-                status: 400, headers
-            });
+            return createResponse({
+                code: 1,
+                msg: `Invalid JSON body, details: ${e.message}`
+            }, 400);
         }
 
         console.log(`Post body: ${JSON.stringify(body)}`);
 
         // 从 body 中获取参数
         const { postId, diff } = body;
-
         // 校验参数合法性
         if (!postId || typeof diff !== 'number' || !Number.isInteger(diff)) {
-            return new Response(JSON.stringify({ "code": 1, "msg": 'Invalid postId or diff' }), {
-                status: 400, headers
-            });
+            return createResponse({
+                code: 1,
+                msg: 'Invalid postId or diff'
+            }, 400);
         }
 
         // 获取请求方 IP 地址
         const ip = request.headers.get('CF-Connecting-IP') || 'unknown-ip';
-
-        // 处理 diff
-        let upvoteRecordValue;
-        if (diff >= 1) {
-            upvoteRecordValue = 1;
-        } else if (diff <= 0) {
-            upvoteRecordValue = 0;
-        }
-
-        // 拼接 upvoteRecordKey
+        const upvoteCountKey = `count:${postId}`;
         const upvoteRecordKey = `upvote:${postId}:${ip}`;
 
-        // 如果用户还没有投过票，则执行后续逻辑
-        // 将 upvoteRecordValue 存储到 UPVOTE_RECORD KV
-        await UPVOTE_RECORD.put(upvoteRecordKey, upvoteRecordValue);
+        try {
+            const [hasUpvotedRecordValue, hasUpvotedCountValue] = await Promise.all([
+                UPVOTE_RECORD.get(upvoteRecordKey),
+                UPVOTE_COUNT.get(upvoteCountKey)
+            ]);
 
-        // 构造 upvoteCountKey 去 UPVOTE_COUNT KV 查询文章当前的 upvoteCountValue
-        const upvoteCountKey = `count:${postId}`;
-        const upvoteCountValue = Number(await UPVOTE_COUNT.get(upvoteCountKey));
-        // 如果本次行为为投票，则 upvoteCountValue + 1，否则 upvoteCountValue - 1
-        if (upvoteRecordValue === 1) {
-            // 检查用户是否已经投过票，从 UPVOTE_RECORD KV 获取对应的 value
-            const existingUpvoteRecordValue = Number(await UPVOTE_RECORD.get(upvoteRecordKey));
-            if (existingUpvoteRecordValue === 1) {
-                return new Response(JSON.stringify({ "code": 1, "msg": 'You have already voted.' }), {
-                    status: 400, headers
-                });
+            const newUpvoteStatus = diff >= 1 ? 1 : 0;
+            const hasUpvotedStatus = Number(hasUpvotedRecordValue);
+            const hasUpvotedCount = Number(hasUpvotedCountValue) || 0;
+
+            // 检查是否重复操作
+            if (newUpvoteStatus === hasUpvotedStatus) {
+                return createResponse({
+                    code: 1,
+                    msg: newUpvoteStatus === 1 ? `You have already voted. ${upvoteRecordKey}` : `You have already canceled your vote. ${upvoteRecordKey}`
+                }, 400);
             }
-            await UPVOTE_COUNT.put(upvoteCountKey, (upvoteCountValue || 0) + 1);
-        } else if (upvoteRecordValue === 0) {
-            if (upvoteCountValue > 0) {
-                await UPVOTE_COUNT.put(upvoteCountKey, (upvoteCountValue || 0) - 1);
-            } else {
-                return new Response(JSON.stringify({ "code": 1, "msg": 'This post\'s less than 1, can not cancel upvote.' }), {
-                    status: 400, headers
-                });
+
+            // 检查取消 upvote 是否合法
+            if (newUpvoteStatus === 0 && hasUpvotedCount <= 0) {
+                return createResponse({
+                    code: 1,
+                    msg: 'This post\'s less than 1, can not cancel upvote.'
+                }, 400);
             }
+
+            // 执行 upvote 操作
+            await Promise.all([
+                UPVOTE_RECORD.put(upvoteRecordKey, newUpvoteStatus),
+                UPVOTE_COUNT.put(upvoteCountKey, newUpvoteStatus === 1 ? hasUpvotedCount + 1 : hasUpvotedCount - 1)
+            ]);
+
+            return createResponse({
+                code: 0,
+                msg: "success"
+            })
+        } catch (e) {
+            return createResponse({
+                code: 1,
+                msg: `Failed to update data in KV store: ${e.message}`
+            }, 500);
         }
-
-        return new Response(JSON.stringify({ "code": 0, "msg": "success" }), {
-            status: 200, headers
-        });
     }
 
     // 其他非法路由重定向到首页
