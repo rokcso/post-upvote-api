@@ -80,7 +80,7 @@ async function handleRequest(request) {
                 data: {
                     post: postId,
                     count: Number(upvoteCountValue),
-                    hasUpvoted: upvoteRecordValue === 1
+                    hasUpvoted: Number(upvoteRecordValue) === 1
                 }
             });
         } catch (e) {
