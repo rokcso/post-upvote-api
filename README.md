@@ -2,7 +2,10 @@
 
 [English](./README.md) | [简体中文](./doc/README_zh.md)
 
-This project serves as the backend service for the Upvote feature in [hugo-bearblog-neo](https://github.com/rokcso/hugo-bearblog-neo). Built on Cloudflare Workers + KV, it allows for easy self-deployment.
+This project is the legacy Cloudflare Workers + KV backend for article upvotes.
+
+> [!WARNING]
+> This project is deprecated and is not recommended for new deployments. Use [Kudos](https://github.com/puinoib/kudos) instead: it is a Cloudflare Workers + D1 upvote service with atomic writes, stronger consistency, and better privacy handling. [hugo-bearneo](https://github.com/rokcso/hugo-bearneo) has fully migrated to Kudos as the backend for its Bear Blog-style Upvote feature.
 
 > Upvote feature: Allows users to upvote individual articles, counts the number of upvotes for each article, and determines the upvote status of a user for a single article.
 

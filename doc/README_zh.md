@@ -2,7 +2,10 @@
 
 [English](../README.md) | [简体中文](./README_zh.md)
 
-本项目是 [hugo-bearblog-neo](https://github.com/rokcso/hugo-bearblog-neo) 中 Upvote 功能的后端服务。基于 Cloudflare Workers + KV，可以非常方便地自部署。
+本项目是基于 Cloudflare Workers + KV 的旧版文章点赞后端服务。
+
+> [!WARNING]
+> 本项目已弃用，不建议用于新的部署。请改用 [Kudos](https://github.com/puinoib/kudos)：它基于 Cloudflare Workers + D1，提供原子写入、更强的一致性和更好的隐私处理。[hugo-bearneo](https://github.com/rokcso/hugo-bearneo) 已全面迁移到 Kudos，作为 Bear Blog 风格 Upvote 功能的后端服务。
 
 > Upvote 功能：支持用户对单篇文章进行 Upvote，统计每篇文章的 Upvote 数，判断用户对单篇文章的 Upvote 状态。
 
